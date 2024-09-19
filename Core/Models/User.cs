@@ -2,7 +2,7 @@
 
 public partial class User
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
     public string? Name { get; set; }
 
@@ -12,11 +12,11 @@ public partial class User
 
     public string? Avatar { get; set; }
 
-    public string Role { get; set; } = null!;
+    public string? Role { get; set; }
 
     public DateOnly? CreatedAt { get; set; }
 
     public DateOnly? UpdatedAt { get; set; }
 
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public virtual ICollection<Review>? Reviews { get; set; } = new List<Review>();
 }

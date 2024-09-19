@@ -50,10 +50,9 @@ public partial class DbComicAppContext : DbContext
 
         modelBuilder.ApplyConfiguration<Director>(new DirectorTypeConfiguration());
 
-        modelBuilder.Entity<ComicDirector>(entity =>
-        {
-            
-        });
+        modelBuilder.ApplyConfiguration<ComicDirector>(new ComicDirectorTypeConfiguration());
+
+        modelBuilder.ApplyConfiguration<User>(new UserTypeConfiguration());
 
         modelBuilder.Entity<ComicGenre>(entity =>
         {
@@ -162,7 +161,7 @@ public partial class DbComicAppContext : DbContext
                 .HasConstraintName("FK__review__user_id__4BAC3F29");
         });
 
-        modelBuilder.ApplyConfiguration<User>(new UserTypeConfiguration());
+        
 
         OnModelCreatingPartial(modelBuilder);
     }
