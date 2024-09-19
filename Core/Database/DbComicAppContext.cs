@@ -42,126 +42,27 @@ public partial class DbComicAppContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfiguration<User>(new UserEntityTypeConfiguration());
+
         modelBuilder.ApplyConfiguration<Actor>(new ActorEntityTypeConfiguration());
 
-        modelBuilder.ApplyConfiguration<Comic>(new ComicTypeConfiguration());
+        modelBuilder.ApplyConfiguration<Comic>(new ComicEntityTypeConfiguration());
 
-        modelBuilder.ApplyConfiguration<ComicActor>(new ComicActorTypeConfiguration());
+        modelBuilder.ApplyConfiguration<ComicActor>(new ComicActorEntityTypeConfiguration());
 
-        modelBuilder.ApplyConfiguration<Director>(new DirectorTypeConfiguration());
+        modelBuilder.ApplyConfiguration<Director>(new DirectorEntityTypeConfiguration());
 
-        modelBuilder.ApplyConfiguration<ComicDirector>(new ComicDirectorTypeConfiguration());
+        modelBuilder.ApplyConfiguration<ComicDirector>(new ComicDirectorEntityTypeConfiguration());
 
-        modelBuilder.ApplyConfiguration<User>(new UserTypeConfiguration());
+        modelBuilder.ApplyConfiguration<Genre>(new GenreEntityTypeConfiguration());
 
-        modelBuilder.Entity<ComicGenre>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("comic_genre");
+        modelBuilder.ApplyConfiguration<ComicGenre>(new ComicGenreEntityTypeConfiguration());
 
-            entity.Property(e => e.ComicId).HasColumnName("comic_id");
-            entity.Property(e => e.GenreId).HasColumnName("genre_id");
+        modelBuilder.ApplyConfiguration<Episode>(new EpisodeEntityTypeConfiguration());
 
-            entity.HasOne(d => d.Comic).WithMany()
-                .HasForeignKey(d => d.ComicId)
-                .HasConstraintName("FK__comic_gen__comic__52593CB8");
+        modelBuilder.ApplyConfiguration<Image>(new ImageEntityTypeConfiguration());
 
-            entity.HasOne(d => d.Genre).WithMany()
-                .HasForeignKey(d => d.GenreId)
-                .HasConstraintName("FK__comic_gen__genre__534D60F1");
-        });
-
-        
-
-        modelBuilder.Entity<Episode>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__episode__3213E83F660786D9");
-
-            entity.ToTable("episode");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ComicId).HasColumnName("comic_id");
-            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-            entity.Property(e => e.DisplayOrder).HasColumnName("display_order");
-            entity.Property(e => e.PublishedAt).HasColumnName("published_at");
-            entity.Property(e => e.Status)
-                .HasDefaultValue((byte)1)
-                .HasColumnName("status");
-            entity.Property(e => e.Title)
-                .HasMaxLength(255)
-                .HasColumnName("title");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-
-            entity.HasOne(d => d.Comic).WithMany(p => p.Episodes)
-                .HasForeignKey(d => d.ComicId)
-                .HasConstraintName("FK__episode__comic_i__4AB81AF0");
-        });
-
-        modelBuilder.Entity<Genre>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__genre__3213E83F0636D778");
-
-            entity.ToTable("genre");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Slug)
-                .HasMaxLength(255)
-                .HasColumnName("slug");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-        });
-
-        modelBuilder.Entity<Image>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__images__3213E83F7E5CB749");
-
-            entity.ToTable("images");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-            entity.Property(e => e.DisplayOrder).HasColumnName("display_order");
-            entity.Property(e => e.EpisodeId).HasColumnName("episode_id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-            entity.Property(e => e.Url).HasColumnName("url");
-
-            entity.HasOne(d => d.Episode).WithMany(p => p.Images)
-                .HasForeignKey(d => d.EpisodeId)
-                .HasConstraintName("FK__images__episode___4D94879B");
-        });
-
-        modelBuilder.Entity<Review>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__review__3213E83FD8773093");
-
-            entity.ToTable("review");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ComicId).HasColumnName("comic_id");
-            entity.Property(e => e.Comment)
-                .HasColumnType("text")
-                .HasColumnName("comment");
-            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-            entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-
-            entity.HasOne(d => d.Comic).WithMany(p => p.Reviews)
-                .HasForeignKey(d => d.ComicId)
-                .HasConstraintName("FK__review__comic_id__4CA06362");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Reviews)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__review__user_id__4BAC3F29");
-        });
-
-        
+        modelBuilder.ApplyConfiguration<Review>(new ReviewEntityTypeConfiguration());
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace API_Application.Core.Database.EntitiesTypeConfigurations
 {
-    public class ComicTypeConfiguration : IEntityTypeConfiguration<Comic>
+    public class ComicEntityTypeConfiguration : IEntityTypeConfiguration<Comic>
     {
         public void Configure(EntityTypeBuilder<Comic> entity)
         {

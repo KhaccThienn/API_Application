@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace API_Application.Core.Database.EntitiesTypeConfigurations
 {
-    public class DirectorTypeConfiguration : IEntityTypeConfiguration<Director>
+    public class DirectorEntityTypeConfiguration : IEntityTypeConfiguration<Director>
     {
         public void Configure(EntityTypeBuilder<Director> entity)
         {

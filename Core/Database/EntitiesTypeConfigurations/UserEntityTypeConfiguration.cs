@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace API_Application.Core.Database.EntitiesTypeConfigurations
 {
-    public class UserTypeConfiguration : IEntityTypeConfiguration<User>
+    public class UserEntityTypeConfiguration : IEntityTypeConfiguration<User>
     {
         public void Configure(EntityTypeBuilder<User> entity)
         {
