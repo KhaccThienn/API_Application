@@ -25,21 +25,6 @@ namespace API_Application.Controllers
         [Route("create")]
         public User CreateUser([FromForm] CreateUserDTO userDTO)
         {
-            if (userDTO.ImageFile != null)
-            {
-                // Generate a unique filename for the uploaded file
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userDTO.ImageFile.FileName);
-                var filePath = Path.Combine("wwwroot/uploads", fileName);
-
-                // Save the file to the server
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    userDTO.ImageFile.CopyTo(stream);
-                }
-
-                // Update the avatar field with the file path
-                userDTO.Avatar = $"https://{HttpContext.Request.Host.Value}/uploads/{fileName}"; ;
-            }
             return _userService.Insert(userDTO);
         }
 
@@ -47,6 +32,12 @@ namespace API_Application.Controllers
         public User UpdateUser(int id, [FromForm] UpdateUserDTO user)
         {
             return _userService.Update(id, user);
+        }
+
+        [HttpPut("ChangePassword/{id}")]
+        public User UpdatePassword(int id, [FromBody] UpdatePasswordDTO user)
+        {
+            return _userService.UpdatePassword(id, user);
         }
 
         [HttpDelete("{id}")]

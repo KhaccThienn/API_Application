@@ -44,6 +44,17 @@ namespace API_Application.Repositories
             return user;
         }
 
+        public User GetById(int id)
+        {
+            var user = new User();
+            var u = _inMem.UserMem.FirstOrDefault(x => x.Key.Equals(id.ToString()));
+            if (u.Value != null)
+            {
+                user = u.Value;
+            }
+            return user;
+        }
+
         public List<User> GetUsers()
         {
             List<User> users = new List<User>();

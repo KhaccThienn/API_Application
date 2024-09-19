@@ -2,6 +2,8 @@
 using API_Application.Core.IServices;
 using API_Application.Core.Models.DTOs;
 using Microsoft.AspNetCore.Http;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Identity;
 
 namespace API_Application.Services
 {
@@ -66,11 +68,12 @@ namespace API_Application.Services
                 // Update the avatar field with the file path
                 u.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
             }
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
             var newUser = new User
             {
                 Name = u.Name,
                 Email = u.Email,
-                Password = u.Password,
+                Password = hashedPassword,
                 Avatar = u.Avatar,
                 Role = u.Role,
                 CreatedAt = DateOnly.FromDateTime(DateTime.Now),
@@ -117,11 +120,12 @@ namespace API_Application.Services
             {
                 u.Avatar = userFound.Avatar;
             }
+
             var user = new User
             {
                 Name = u.Name,
                 Email = u.Email,
-                Password = u.Password,
+                Password = userFound.Password,
                 Avatar = u.Avatar,
                 Role = u.Role,
                 CreatedAt = DateOnly.FromDateTime(DateTime.Now),
@@ -129,5 +133,35 @@ namespace API_Application.Services
             };
             return _repository.Update(id, user);
         }
+
+        public User UpdatePassword(int id, UpdatePasswordDTO model)
+        {
+            var userFound = _repository.GetById(id);
+            if (userFound == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(model.OldPassword, userFound.Password))
+            {
+                throw new Exception("Old password is incorrect");
+            }
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+
+            var updatedUser = new User
+            {
+                Id = userFound.Id,
+                Name = userFound.Name,
+                Email = userFound.Email,
+                Password = hashedPassword,
+                Avatar = userFound.Avatar,
+                Role = userFound.Role,
+                CreatedAt = userFound.CreatedAt,
+                UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            return _repository.Update(id, updatedUser);
+        } 
     }
 }
