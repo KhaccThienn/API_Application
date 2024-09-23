@@ -3,8 +3,9 @@
     public interface IUserService
     {
         List<User> GetUsers();
-        User Insert(User u);
-        User Update(int id, User u);
+        User Insert(CreateUserDTO u);
+        User Update(int id, UpdateUserDTO u);
+        User UpdatePassword(int id, UpdatePasswordDTO model);
         User Delete(int id);
     }
 }

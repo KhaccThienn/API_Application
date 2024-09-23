@@ -3,10 +3,10 @@ namespace API_Application.Core.Database.InMemory
 {
     public class UserMemory
     {
-        public Dictionary<string, User> Memory { get; set; }
+        public Dictionary<string, User> UserMem { get; set; }
         public UserMemory()
         {
-            Memory = new Dictionary<string, User>();
+            UserMem = new Dictionary<string, User>();
         }
     }
 }
