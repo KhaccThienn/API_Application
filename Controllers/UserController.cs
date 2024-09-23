@@ -1,6 +1,4 @@
 ﻿using API_Application.Core.IServices;
-using API_Application.Core.Models.DTOs;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_Application.Controllers
@@ -45,5 +43,7 @@ namespace API_Application.Controllers
         {
             return _userService.Delete(id);
         }
+
+
     }
 }

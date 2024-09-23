@@ -1,6 +1,4 @@
-﻿using API_Application.Core.Models.DTOs;
-
-namespace API_Application.Core.IServices
+﻿namespace API_Application.Core.IServices
 {
     public interface IUserService
     {
