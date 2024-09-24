@@ -31,7 +31,7 @@ namespace API_Application.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
         {
-            return Ok(_inMem.ActorMem.Values.ToList());
+            return Ok(_inMem.ActorMem.Values.OrderByDescending(x => x.Id).ToList());
         }
 
         // GET: api/Actor/5
@@ -112,6 +112,8 @@ namespace API_Application.Controllers
 
             try
             {
+                _inMem.ActorMem.Remove(actor.Id.ToString());
+                _inMem.ActorMem.Add(actor.Id.ToString(), actor);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -126,7 +128,7 @@ namespace API_Application.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(actor);
         }
 
         // POST: api/Actor
@@ -178,7 +180,7 @@ namespace API_Application.Controllers
                 return NotFound();
             }
             try
-            {
+            {   
                 var oldFileName = actor.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
                 Console.WriteLine($"Old File: {oldFileName}");
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
