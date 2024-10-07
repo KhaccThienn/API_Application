@@ -61,5 +61,9 @@ app.LoadDataToMemory<DirectorMemory, DbComicAppContext>((directorInMem, dbContex
     new DirectorMemorySeedAsync().SeedAsync(directorInMem, dbContext).Wait();
 });
 
+app.LoadDataToMemory<ComicMemory, DbComicAppContext>((comicInMem, dbContext) =>
+{
+    new ComicMemorySeedAsync().SeedAsync(comicInMem, dbContext).Wait();
+});
 
 app.Run();

@@ -18,7 +18,7 @@ public partial class Comic
 
     public double? Rating { get; set; }
 
-    public string Type { get; set; } = null!;
+    public string Type { get; set; }
 
     public byte? Status { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using API_Application.Core.Database;
 using API_Application.Core.Database.InMemory;
 using API_Application.Core.IRepositories;
+using API_Application.Core.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API_Application.Repositories
@@ -20,7 +21,7 @@ namespace API_Application.Repositories
             _inMem = inMem;
         }
 
-        public User Delete(int id)
+        public async Task<User> Delete(int id)
         {
             var user = new User();
             var u = _inMem.UserMem.FirstOrDefault(x => x.Key.Equals(id.ToString()));
@@ -33,18 +34,17 @@ namespace API_Application.Repositories
                     _inMem.UserMem.Remove(u.Key);
 
                     _db.Users.Remove(user);
-                    _db.SaveChanges();
+                    await _db.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
                 }
             }
-            
             return user;
         }
 
-        public User GetById(int id)
+        public async Task<User> GetById(int id)
         {
             var user = new User();
             var u = _inMem.UserMem.FirstOrDefault(x => x.Key.Equals(id.ToString()));
@@ -55,7 +55,7 @@ namespace API_Application.Repositories
             return user;
         }
 
-        public List<User> GetUsers()
+        public async Task<IEnumerable<User>> GetUsers()
         {
             List<User> users = new List<User>();
 
@@ -72,16 +72,18 @@ namespace API_Application.Repositories
             return users;
         }
 
-        public User Insert(User u)
+        public async Task<User> Insert(User u)
         {
             try
             {
-                // insert into memory
-                _inMem.UserMem.Add(u.Id.ToString(), u);
+
+                _db.Entry(u).State = EntityState.Added;
 
                 // insert into db
-                _db.Users.Add(u);
+                var user = await _db.Users.AddAsync(u);
                 _db.SaveChanges();
+                // insert into memory
+                _inMem.UserMem.Add(u.Id.ToString(), u);
 
             }
             catch(Exception ex)
@@ -92,7 +94,7 @@ namespace API_Application.Repositories
             return u;
         }
 
-        public User Update(int id, User u)
+        public async Task<User> Update(int id, User u)
         {
             var user = new User();
             var oldUser = _inMem.UserMem.FirstOrDefault(x => x.Key.Equals(id.ToString()));

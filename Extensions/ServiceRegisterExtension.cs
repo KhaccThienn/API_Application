@@ -31,6 +31,7 @@ namespace API_Application.Extensions
             services.AddSingleton<GenreMemory>();
             services.AddSingleton<ActorMemory>();
             services.AddSingleton<DirectorMemory>();
+            services.AddSingleton<ComicMemory>();
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
