@@ -69,8 +69,10 @@ namespace API_Application.Controllers
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", drt.ImageFile.FileName);
+
                     var oldFileName = actorFound.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
                     Console.WriteLine($"Old File: {oldFileName}");
+
                     var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
                     if (System.IO.File.Exists(pathOldFile))
                     {

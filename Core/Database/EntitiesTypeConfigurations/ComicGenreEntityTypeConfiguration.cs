@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace API_Application.Core.Database.EntitiesTypeConfigurations
 {
@@ -6,9 +7,9 @@ namespace API_Application.Core.Database.EntitiesTypeConfigurations
     {
         public void Configure(EntityTypeBuilder<ComicGenre> entity)
         {
-            entity
-                .HasNoKey()
-                .ToTable("comic_genre");
+            entity.ToTable("comic_genre");
+
+            entity.HasKey(cg => new { cg.ComicId, cg.GenreId });
 
             entity.Property(e => e.ComicId).HasColumnName("comic_id");
             entity.Property(e => e.GenreId).HasColumnName("genre_id");

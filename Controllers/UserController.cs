@@ -14,36 +14,40 @@ namespace API_Application.Controllers
         }
 
         [HttpGet]
-        public List<User> GetUsers()
+        public async Task<IEnumerable<User>> GetUsers()
         {
-            return _userService.GetUsers();
+            return await _userService.GetUsers();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<User> GetUser(int id)
+        {
+            return await _userService.GetById(id);
         }
 
         [HttpPost]
         [Route("create")]
-        public User CreateUser([FromForm] CreateUserDTO userDTO)
+        public async Task<User> CreateUser([FromForm] CreateUserDTO userDTO)
         {
-            return _userService.Insert(userDTO);
+            return await _userService.Insert(userDTO);
         }
 
         [HttpPut("{id}")]
-        public User UpdateUser(int id, [FromForm] UpdateUserDTO user)
+        public async Task<User> UpdateUser(int id, [FromForm] UpdateUserDTO user)
         {
-            return _userService.Update(id, user);
+            return await _userService.Update(id, user);
         }
 
         [HttpPut("ChangePassword/{id}")]
-        public User UpdatePassword(int id, [FromBody] UpdatePasswordDTO user)
+        public async Task<User> UpdatePassword(int id, [FromBody] UpdatePasswordDTO user)
         {
-            return _userService.UpdatePassword(id, user);
+            return await _userService.UpdatePassword(id, user);
         }
 
         [HttpDelete("{id}")]
-        public User DeleteUser(int id)
+        public async Task<User> DeleteUser(int id)
         {
-            return _userService.Delete(id);
+            return await _userService.Delete(id);
         }
-
-
     }
 }

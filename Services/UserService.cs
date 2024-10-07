@@ -18,9 +18,9 @@ namespace API_Application.Services
             _httpContext = accessor;
         }
 
-        public User Delete(int id)
+        public async Task<User> Delete(int id)
         {
-            var userFound = _repository.GetUsers().FirstOrDefault(x => x.Id == id);
+            var userFound = await _repository.GetById(id);
             if (userFound != null)
             {
                 try
@@ -38,21 +38,31 @@ namespace API_Application.Services
                     throw;
                 }
             }
-            return _repository.Delete(id);
+            return await _repository.Delete(id);
         }
 
-        public List<User> GetUsers()
+        public async Task<User> GetById(int id)
         {
-            return _repository.GetUsers();
+            return await _repository.GetById(id);
         }
 
-        public User Insert(User u)
+        public async Task<IEnumerable<User>> GetUsers()
         {
-            return _repository.Insert(u);
+            return await _repository.GetUsers();
         }
 
-        public User Insert(CreateUserDTO u)
+        public async Task<User> Insert(User u)
         {
+            return await _repository.Insert(u);
+        }
+
+        public async Task<User> Insert(CreateUserDTO u)
+        {
+            var userExisted = _repository.GetUsers().Result.FirstOrDefault(x => x.Email == u.Email);
+            if (userExisted != null)
+            {
+                throw new Exception($"User having email {u.Email} existed");
+            }
             if (u.ImageFile != null)
             {
                 // Generate a unique filename for the uploaded file
@@ -80,12 +90,12 @@ namespace API_Application.Services
                 UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
             };
 
-            return _repository.Insert(newUser);
+            return await _repository.Insert(newUser);
         }
 
-        public User Update(int id, UpdateUserDTO u)
+        public async Task<User> Update(int id, UpdateUserDTO u)
         {
-            var userFound = _repository.GetUsers().FirstOrDefault(x => x.Id == id);
+            var userFound = await _repository.GetById(id);
             if (u.ImageFile != null)
             {
                 try
@@ -123,6 +133,7 @@ namespace API_Application.Services
 
             var user = new User
             {
+                Id = u.Id,
                 Name = u.Name,
                 Email = u.Email,
                 Password = userFound.Password,
@@ -131,12 +142,12 @@ namespace API_Application.Services
                 CreatedAt = DateOnly.FromDateTime(DateTime.Now),
                 UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
             };
-            return _repository.Update(id, user);
+            return await _repository.Update(id, user);
         }
 
-        public User UpdatePassword(int id, UpdatePasswordDTO model)
+        public async Task<User> UpdatePassword(int id, UpdatePasswordDTO model)
         {
-            var userFound = _repository.GetById(id);
+            var userFound = await _repository.GetById(id);
             if (userFound == null)
             {
                 throw new Exception("User not found");
@@ -161,7 +172,7 @@ namespace API_Application.Services
                 UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
             };
 
-            return _repository.Update(id, updatedUser);
+            return await _repository.Update(id, updatedUser);
         } 
     }
 }

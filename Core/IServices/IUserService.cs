@@ -2,10 +2,11 @@
 {
     public interface IUserService
     {
-        List<User> GetUsers();
-        User Insert(CreateUserDTO u);
-        User Update(int id, UpdateUserDTO u);
-        User UpdatePassword(int id, UpdatePasswordDTO model);
-        User Delete(int id);
+        Task<IEnumerable<User>> GetUsers();
+        Task<User> GetById(int id);
+        Task<User> Insert(CreateUserDTO u);
+        Task<User> Update(int id, UpdateUserDTO u);
+        Task<User> UpdatePassword(int id, UpdatePasswordDTO model);
+        Task<User> Delete(int id);
     }
 }

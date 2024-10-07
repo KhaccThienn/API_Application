@@ -8,9 +8,9 @@ namespace API_Application.Core.Database.EntitiesTypeConfigurations
     {
         public void Configure(EntityTypeBuilder<ComicActor> entity)
         {
-            entity
-                .HasNoKey()
-                .ToTable("comic_actor");
+            entity.HasKey(ca => new { ca.ComicId, ca.ActorId });
+
+            entity.ToTable("comic_actor");
 
             entity.Property(e => e.ActorId).HasColumnName("actor_id");
             entity.Property(e => e.ComicId).HasColumnName("comic_id");
