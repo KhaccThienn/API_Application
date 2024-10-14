@@ -2,7 +2,7 @@
 
 public partial class Review
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
     public string? Comment { get; set; }
 

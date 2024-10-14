@@ -77,5 +77,9 @@ app.LoadDataToMemory<ImagesMemory, DbComicAppContext>((imgInmem, dbContext) =>
     new ImageMemorySeedAsync().SeedAsync(imgInmem, dbContext).Wait();
 });
 
+app.LoadDataToMemory<ReviewMemory, DbComicAppContext>((revInMem, dbContext) =>
+{
+    new ReviewMemorySeedAsync().SeedAsync(revInMem, dbContext).Wait();
+});
 
 app.Run();

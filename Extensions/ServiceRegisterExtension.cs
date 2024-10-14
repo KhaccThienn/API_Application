@@ -27,6 +27,7 @@
             services.AddSingleton<ComicMemory>();
             services.AddSingleton<EpisodeMemory>();
             services.AddSingleton<ImagesMemory>();
+            services.AddSingleton<ReviewMemory>();
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
