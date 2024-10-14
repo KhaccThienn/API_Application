@@ -1,7 +1,4 @@
-﻿
-using API_Application.Core.Database.EntitiesTypeConfigurations;
-
-namespace API_Application.Core.Database;
+﻿namespace API_Application.Core.Database;
 
 public partial class DbComicAppContext : DbContext
 {
