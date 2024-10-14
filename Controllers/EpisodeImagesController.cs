@@ -1,24 +1,20 @@
-﻿using API_Application.Core.Models;
-using API_Application.Core.Models.DTOs;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API_Application.Controllers
+﻿namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class EpisodeImagesController : ControllerBase
     {
-        private readonly DbComicAppContext _context;
-        private readonly ImagesMemory _inMem;
-        private readonly IHttpContextAccessor _httpContext;
+        private readonly DbComicAppContext                _context;
+        private readonly ImagesMemory                     _inMem;
+        private readonly IHttpContextAccessor             _httpContext;
         private readonly ILogger<EpisodeImagesController> _logger;
 
         public EpisodeImagesController(DbComicAppContext context, IHttpContextAccessor httpContext, ImagesMemory memory, ILogger<EpisodeImagesController> logger)
         {
-            _context = context;
+            _context     = context;
             _httpContext = httpContext;
-            _inMem = memory;
-            _logger = logger;
+            _inMem       = memory;
+            _logger      = logger;
         }
 
         [HttpGet("get-all")]
@@ -84,11 +80,11 @@ namespace API_Application.Controllers
 
             var image = new Image
             {
-                Name = model.Name,
-                Url = model.Url,
+                Name         = model.Name,
+                Url          = model.Url,
                 DisplayOrder = model.DisplayOrder,
-                EpisodeId = model.EpisodeId,
-                CreatedAt = DateOnly.FromDateTime(DateTime.Now)
+                EpisodeId    = model.EpisodeId,
+                CreatedAt    = DateOnly.FromDateTime(DateTime.Now)
             };
 
             _context.Images.Add(image);
@@ -155,11 +151,11 @@ namespace API_Application.Controllers
             }
 
 
-            image.Name = model.Name;
-            image.Url = model.Url;
+            image.Name         = model.Name;
+            image.Url          = model.Url;
             image.DisplayOrder = model.DisplayOrder;
-            image.EpisodeId = model.EpisodeId;
-            image.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);
+            image.EpisodeId    = model.EpisodeId;
+            image.UpdatedAt    = DateOnly.FromDateTime(DateTime.Now);
 
 
             // Mark the entity as modified

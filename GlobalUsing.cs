@@ -7,9 +7,10 @@ global using System.Net.Http;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 global using Microsoft.EntityFrameworkCore;
+
 global using API_Application.Core.Database;
+global using API_Application.Core.Database.EntitiesTypeConfigurations;
 global using API_Application.Core.Database.InMemory;
 global using API_Application.Core.Models;
 global using API_Application.Core.Models.DTOs;
