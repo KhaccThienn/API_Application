@@ -66,4 +66,16 @@ app.LoadDataToMemory<ComicMemory, DbComicAppContext>((comicInMem, dbContext) =>
     new ComicMemorySeedAsync().SeedAsync(comicInMem, dbContext).Wait();
 });
 
+
+app.LoadDataToMemory<EpisodeMemory, DbComicAppContext>((epsInMem, dbContext) =>
+{
+    new EpisodeMemorySeedAsync().SeedAsync(epsInMem, dbContext).Wait();
+});
+
+app.LoadDataToMemory<ImagesMemory, DbComicAppContext>((imgInmem, dbContext) =>
+{
+    new ImageMemorySeedAsync().SeedAsync(imgInmem, dbContext).Wait();
+});
+
+
 app.Run();

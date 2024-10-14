@@ -1,32 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using API_Application.Core.Database;
-using API_Application.Core.Models;
-using System.Net.Http;
-using API_Application.Core.Database.InMemory;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using API_Application.Core.Models.DTOs;
-
+﻿
 namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ComicController : ControllerBase
     {
-        private readonly DbComicAppContext _context;
-        private readonly ComicMemory _inMem;
+        private readonly DbComicAppContext    _context;
+        private readonly ComicMemory          _inMem;
         private readonly IHttpContextAccessor _httpContext;
 
         public ComicController(DbComicAppContext context, IHttpContextAccessor httpContext, ComicMemory memory)
         {
-            _context = context;
+            _context     = context;
             _httpContext = httpContext;
-            _inMem = memory;
+            _inMem       = memory;
         }
 
         // GET: api/Comic
@@ -110,16 +97,16 @@ namespace API_Application.Controllers
                 comicFound.Poster = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
             }
 
-            // Update the comic fields with the updated values from DTO
-            comicFound.Title = updateComicDTO.Title;
-            comicFound.Slug = updateComicDTO.Slug;
+            // Update the comic    fields with the updated values from DTO
+            comicFound.Title       = updateComicDTO.Title;
+            comicFound.Slug        = updateComicDTO.Slug;
             comicFound.Description = updateComicDTO.Description;
             comicFound.ReleaseYear = updateComicDTO.ReleaseYear;
-            comicFound.View = updateComicDTO.View;
-            comicFound.Rating = updateComicDTO.Rating;
-            comicFound.Type = updateComicDTO.Type;
-            comicFound.Status = updateComicDTO.Status;
-            comicFound.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);
+            comicFound.View        = updateComicDTO.View;
+            comicFound.Rating      = updateComicDTO.Rating;
+            comicFound.Type        = updateComicDTO.Type;
+            comicFound.Status      = updateComicDTO.Status;
+            comicFound.UpdatedAt   = DateOnly.FromDateTime(DateTime.Now);
 
             // Update Genres
             var existingGenres = _context.ComicGenres.Where(x => x.ComicId == id).ToList();
@@ -152,7 +139,7 @@ namespace API_Application.Controllers
             {
                 _context.ComicDirectors.Add(new ComicDirector
                 {
-                    ComicId = id,
+                    ComicId    = id,
                     DirectorId = directorId
                 });
             }
@@ -209,17 +196,17 @@ namespace API_Application.Controllers
             // Create a new Comic entity
             Comic comic = new Comic
             {
-                Title = addComicDTO.Title,
-                Slug = addComicDTO.Slug,
+                Title       = addComicDTO.Title,
+                Slug        = addComicDTO.Slug,
                 Description = addComicDTO.Description,
-                Poster = addComicDTO.Poster,
+                Poster      = addComicDTO.Poster,
                 ReleaseYear = addComicDTO.ReleaseYear,
-                View = addComicDTO.View,
-                Rating = addComicDTO.Rating,
-                Type = addComicDTO.Type,
-                Status = addComicDTO.Status,
-                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
-                UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
+                View        = addComicDTO.View,
+                Rating      = addComicDTO.Rating,
+                Type        = addComicDTO.Type,
+                Status      = addComicDTO.Status,
+                CreatedAt   = DateOnly.FromDateTime(DateTime.Now),
+                UpdatedAt   = DateOnly.FromDateTime(DateTime.Now)
             };
 
             // Add the comic to the context and save changes to get the ID
@@ -256,7 +243,7 @@ namespace API_Application.Controllers
             {
                 ComicDirector comicDirector = new ComicDirector
                 {
-                    ComicId = comicId,
+                    ComicId    = comicId,
                     DirectorId = directorId
                 };
                 _context.ComicDirectors.Add(comicDirector);

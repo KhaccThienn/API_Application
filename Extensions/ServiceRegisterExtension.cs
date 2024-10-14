@@ -1,11 +1,4 @@
-﻿using API_Application.Core.Database;
-using API_Application.Core.Database.InMemory;
-using API_Application.Core.IRepositories;
-using API_Application.Core.IServices;
-using API_Application.Repositories;
-using API_Application.Services;
-
-namespace API_Application.Extensions
+﻿namespace API_Application.Extensions
 {
     public static class ServiceRegisterExtension
     {
@@ -32,6 +25,8 @@ namespace API_Application.Extensions
             services.AddSingleton<ActorMemory>();
             services.AddSingleton<DirectorMemory>();
             services.AddSingleton<ComicMemory>();
+            services.AddSingleton<EpisodeMemory>();
+            services.AddSingleton<ImagesMemory>();
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
