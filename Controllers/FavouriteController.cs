@@ -4,10 +4,10 @@
     [ApiController]
     public class FavouriteController : ControllerBase
     {
-        private readonly DbComicAppContext        _context;
-        private readonly ILogger<GenreController> _logger;
+        private readonly DbComicAppContext            _context;
+        private readonly ILogger<FavouriteController> _logger;
 
-        public FavouriteController(DbComicAppContext context, ILogger<GenreController> logger)
+        public FavouriteController(DbComicAppContext context, ILogger<FavouriteController> logger)
         {
             _context  = context;
             _logger   = logger;
