@@ -31,7 +31,27 @@ namespace API_Application.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Director>>> GetDirectors()
         {
-            return Ok(_inMem.DirectorMem.Values.ToList());
+            return Ok(_inMem.DirectorMem.Values.OrderByDescending(x => x.Id).ToList());
+        }
+
+        // GET: api/Genre
+        [HttpGet("by-paginate")]
+        public ActionResult<IEnumerable<Genre>> GetDirectorsByPaginate(int page = 1, int pageSize = 1)
+        {
+            var total = _inMem.DirectorMem.Values.Count;
+            var data = _inMem.DirectorMem.Values
+                         .OrderByDescending(x => x.Id)
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
+            var response = new
+            {
+                Data = data,
+                TotalItem = total,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)total / pageSize)
+            };
+            return Ok(response);
         }
 
         // GET: api/Director/5

@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using API_Application.Core.Database;
-using API_Application.Core.Models;
-using API_Application.Core.Database.InMemory;
-using NuGet.Protocol.Core.Types;
-using Humanizer.Localisation;
+﻿using Microsoft.AspNetCore.Cors;
+using System.Drawing.Printing;
 
 namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowOrigin")]
     public class ActorController : ControllerBase
     {
         private readonly DbComicAppContext _context;
@@ -32,6 +23,27 @@ namespace API_Application.Controllers
         public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
         {
             return Ok(_inMem.ActorMem.Values.OrderByDescending(x => x.Id).ToList());
+        }
+
+        // GET: api/Actor
+        [HttpGet("by-paginate")]
+        public async Task<ActionResult<IEnumerable<Actor>>> GetActorsByPaginate(int page = 1, int pageSize = 1)
+        {
+            //return Ok(_inMem.ActorMem.Values.OrderByDescending(x => x.Id).ToList());
+            var total = _inMem.ActorMem.Values.Count;
+            var data = _inMem.ActorMem.Values
+                         .OrderByDescending(x => x.Id)
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
+            var response = new
+            {
+                Data = data,
+                TotalItem = total,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)total / pageSize)
+            };
+            return Ok(response);
         }
 
         // GET: api/Actor/5

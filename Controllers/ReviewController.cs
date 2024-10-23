@@ -26,7 +26,12 @@ namespace API_Application.Controllers
         [HttpGet("get-by-comic/{comicId}")]
         public async Task<ActionResult<IEnumerable<Review>>> GetByComicId(int comicId)
         {
-            var data = await _context.Reviews.Include(x => x.Comic).Include(x => User).Where(x => x.ComicId == comicId).ToListAsync();
+            var data = await _context.Reviews
+                                    .Include(x => x.Comic)  // Include the Comic entity
+                                    .Include(x => x.User)   // Include the User entity (assuming it's a navigation property)
+                                    .Where(x => x.ComicId == comicId)
+                                    .ToListAsync();
+
             return Ok(data);
         }
 

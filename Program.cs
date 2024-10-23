@@ -14,6 +14,7 @@ builder.Services.AddDbContext<DbComicAppContext>(opts =>
 {
     opts.UseSqlServer(configuration.GetConnectionString("ConnStr"));
 });
+
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();

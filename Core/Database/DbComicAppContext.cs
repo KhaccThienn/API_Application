@@ -33,9 +33,11 @@ public partial class DbComicAppContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Favourite> Favourites { get; set; }
+    public virtual DbSet<History> Histories { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=KHACCTHIENN\\SQLEXPRESS; Database=Db_Comic_App; User Id=sa; Password=1234$; Trusted_Connection=True; TrustServerCertificate=True; MultipleActiveResultSets=True");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-8QPQQS5\\KHACCTHIENN; Database=Db_Comic_App; User Id=sa; Password=1234$; Trusted_Connection=True; TrustServerCertificate=True; MultipleActiveResultSets=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +62,10 @@ public partial class DbComicAppContext : DbContext
         modelBuilder.ApplyConfiguration<Image>(new ImageEntityTypeConfiguration());
 
         modelBuilder.ApplyConfiguration<Review>(new ReviewEntityTypeConfiguration());
+
+        modelBuilder.ApplyConfiguration<Favourite>(new FavouriteEntityTypeConfiguration());
+
+        modelBuilder.ApplyConfiguration<History>(new HistoryEntityTypeConfiguration());
 
         OnModelCreatingPartial(modelBuilder);
     }

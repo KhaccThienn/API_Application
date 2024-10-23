@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using API_Application.Core.Database;
-using API_Application.Core.Models;
-using API_Application.Core.Database.InMemory;
-using API_Application.Core.Models.DTOs;
-
-namespace API_Application.Controllers
+﻿namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -31,7 +19,28 @@ namespace API_Application.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Genre>> GetGenres()
         {
-            return Ok(_inMem.GenreMem.Values.ToList());
+            var data     = _inMem.GenreMem.Values.ToList();
+            return Ok(data);
+        }
+
+        // GET: api/Genre
+        [HttpGet("by-paginate")]
+        public ActionResult<IEnumerable<Genre>> GetGenresByPaginate(int page = 1, int pageSize = 1)
+        {
+            var total = _inMem.GenreMem.Values.Count;
+            var data = _inMem.GenreMem.Values
+                         .OrderByDescending(x => x.Id)
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
+            var response = new
+            {
+                Data = data,
+                TotalItem = total,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)total / pageSize)
+            };
+            return Ok(response);
         }
 
         [HttpGet("Search/{query}")]

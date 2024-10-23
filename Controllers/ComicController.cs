@@ -23,6 +23,26 @@ namespace API_Application.Controllers
             return _inMem.ComicMem.Values.ToList();
         }
 
+        // GET: api/Genre
+        [HttpGet("by-paginate")]
+        public ActionResult<IEnumerable<Genre>> GetComicsByPaginate(int page = 1, int pageSize = 1)
+        {
+            var total = _inMem.ComicMem.Values.Count;
+            var data = _inMem.ComicMem.Values
+                         .OrderByDescending(x => x.Id)
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
+            var response = new
+            {
+                Data = data,
+                TotalItem = total,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)total / pageSize)
+            };
+            return Ok(response);
+        }
+
         [HttpGet("Directors/{id}")]
         public async Task<ActionResult<IEnumerable<ComicDirector>>> GetComicDirector(int id)
         {

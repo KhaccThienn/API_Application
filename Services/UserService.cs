@@ -105,14 +105,18 @@ namespace API_Application.Services
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", u.ImageFile.FileName);
-                    var oldFileName = userFound.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
-                    Console.WriteLine($"Old File: {oldFileName}");
-                    var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
-                    if (System.IO.File.Exists(pathOldFile))
+                    if (userFound.Avatar != null)
                     {
-                        System.IO.File.Delete(pathOldFile);
-                    }
+                        var oldFileName = userFound.Avatar?.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
 
+                        Console.WriteLine($"Old File: {oldFileName}");
+                        var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
+                        if (System.IO.File.Exists(pathOldFile))
+                        {
+                            System.IO.File.Delete(pathOldFile);
+                        }
+                    }
+                    
                     // Save the file to the server
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
