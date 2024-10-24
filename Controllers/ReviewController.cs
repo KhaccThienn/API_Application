@@ -48,6 +48,23 @@ namespace API_Application.Controllers
             return review;
         }
 
+        [HttpGet("search/{name}")]
+        public async Task<ActionResult> SearchComics(string name)
+        {
+            var data = await _context.Reviews
+                                     .Include(x => x.Comic)
+                                     .Where(x => x.Comic.Title.Contains(name))
+                                     .ToListAsync();
+
+            if (data == null || !data.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> PostReview([FromBody] Review model)
         {

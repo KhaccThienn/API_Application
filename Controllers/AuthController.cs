@@ -1,8 +1,4 @@
-﻿using API_Application.Core.IServices;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API_Application.Controllers
+﻿namespace API_Application.Controllers
 {
     [EnableCors("AllowOrigin")]
     [ApiController]

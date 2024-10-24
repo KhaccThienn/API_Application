@@ -28,7 +28,7 @@ public partial class Comic
 
     public DateOnly? PublishedAt { get; set; }
 
-    public virtual ICollection<Episode> Episodes { get; set; } = new List<Episode>();
+    public virtual ICollection<Episode> Episodes { get; set; }
 
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public virtual ICollection<Review> Reviews { get; set; }
 }

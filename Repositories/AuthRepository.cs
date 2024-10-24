@@ -1,23 +1,19 @@
-﻿using API_Application.Core.Database.InMemory;
-using API_Application.Core.Database;
-using API_Application.Core.IRepositories;
-
-namespace API_Application.Repositories
+﻿namespace API_Application.Repositories
 {
     public class AuthRepository : IAuthRepository
 
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration          _configuration;
         private readonly ILogger<AuthRepository> _logger;
-        private readonly DbComicAppContext _db;
-        private readonly UserMemory _inMem;
+        private readonly DbComicAppContext       _db;
+        private readonly UserMemory              _inMem;
 
         public AuthRepository(IConfiguration configuration, ILogger<AuthRepository> logger, DbComicAppContext db, UserMemory memory)
         {
             _configuration = configuration;
-            _logger = logger;
-            _db = db;
-            _inMem = memory;
+            _logger        = logger;
+            _db            = db;
+            _inMem         = memory;
         }
 
         public User Login(LoginDTO loginDTO)
@@ -51,10 +47,10 @@ namespace API_Application.Repositories
             // Create new user
             var newUser = new User
             {
-                Name = registerDTO.Name,
-                Email = registerDTO.Email,
+                Name     = registerDTO.Name,
+                Email    = registerDTO.Email,
                 Password = passwordHash,
-                Role = registerDTO.Role
+                Role     = registerDTO.Role
             };
 
             // Add user to database

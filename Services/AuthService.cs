@@ -1,9 +1,4 @@
-﻿using API_Application.Core.IRepositories;
-using API_Application.Core.IServices;
-using API_Application.Core.Models.DTOs;
-using Microsoft.AspNetCore.Mvc;
-
-namespace API_Application.Services
+﻿namespace API_Application.Services
 {
     public class AuthService : IAuthService
     {
@@ -38,6 +33,10 @@ namespace API_Application.Services
         {
             try
             {
+                if (registerDTO.Role == null)
+                {
+                    registerDTO.Role = "USER";
+                }
                 var user = await _repository.Register(registerDTO);
 
                 return new OkObjectResult(user);

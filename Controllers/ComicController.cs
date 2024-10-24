@@ -23,6 +23,13 @@ namespace API_Application.Controllers
             return _inMem.ComicMem.Values.ToList();
         }
 
+        // GET: api/Actor
+        [HttpGet("search/{name}")]
+        public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
+        {
+            return Ok(_inMem.ComicMem.Values.Where(x => x.Title.Contains(name)).OrderByDescending(x => x.Id).ToList());
+        }
+
         // GET: api/Genre
         [HttpGet("by-paginate")]
         public ActionResult<IEnumerable<Genre>> GetComicsByPaginate(int page = 1, int pageSize = 1)
@@ -60,6 +67,84 @@ namespace API_Application.Controllers
         {
             return await _context.ComicGenres.Include(x => x.Genre).Where(x => x.ComicId == id).ToListAsync();
         }
+
+        [HttpGet("details/{comicId}")]
+        public async Task<ActionResult> GetComicDetails(int comicId)
+        {
+            var comic = await _context.Comics
+                                     .Include(c => c.Episodes)
+                                     .Include(c => c.Reviews)
+                                     .FirstOrDefaultAsync(c => c.Id == comicId);
+
+            var comicDirectors = await _context.ComicDirectors.Include(x => x.Director).Where(x => x.ComicId == comicId).ToListAsync();
+            var comicActors = await _context.ComicActors.Include(x => x.Actor).Where(x => x.ComicId == comicId).ToListAsync();
+            var comicGenres = await _context.ComicGenres.Include(x => x.Genre).Where(x => x.ComicId == comicId).ToListAsync();
+
+            if (comic == null)
+            {
+                return NotFound(new { message = "Comic not found" });
+            }
+
+            var comicDetails = new ComicDetailsDto
+            {
+                Id          = comic.Id,
+                Title       = comic.Title,
+                Slug        = comic.Slug,
+                Description = comic.Description,
+                Poster      = comic.Poster,
+                ReleaseYear = comic.ReleaseYear,
+                View        = comic.View,
+                Rating      = comic.Rating,
+                Type        = comic.Type,
+                Status      = comic.Status,
+                CreatedAt   = comic.CreatedAt,
+                UpdatedAt   = comic.UpdatedAt,
+                PublishedAt = comic.PublishedAt,
+
+                Episodes = comic.Episodes.Select(e => new EpisodeDto
+                {
+                    Id           = e.Id,
+                    Title        = e.Title,
+                    DisplayOrder = e.DisplayOrder,
+                    Status       = e.Status,
+                    CreatedAt    = e.CreatedAt,
+                    UpdatedAt    = e.UpdatedAt,
+                    PublishedAt  = e.PublishedAt
+                }).ToList(),
+
+                Reviews = comic.Reviews.Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    UserId = r.UserId,
+                    CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt
+                }).ToList(),
+
+                Directors = comicDirectors.Select(cd => new ComicDirectorDto
+                {
+                    Id   = cd.Director.Id,  // Adjust to your Director properties
+                    Name = cd.Director.Name // Adjust to your Director properties
+                }).ToList(),
+
+                Actors = comicActors.Select(ca => new ComicActorDto
+                {
+                    Id   = ca.Actor.Id,  // Adjust to your Actor properties
+                    Name = ca.Actor.Name // Adjust to your Actor properties
+                }).ToList(),
+
+                Genres = comicGenres.Select(cg => new ComicGenreDto
+                {
+                    Id   = cg.Genre.Id,  // Adjust to your Genre properties
+                    Name = cg.Genre.Name // Adjust to your Genre properties
+                }).ToList()
+            };
+
+            return Ok(comicDetails);
+        }
+
+
 
         // GET: api/Comic/5
         [HttpGet("{id}")]

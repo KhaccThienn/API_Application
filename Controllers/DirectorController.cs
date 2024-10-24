@@ -1,16 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using API_Application.Core.Database;
-using API_Application.Core.Models;
-using API_Application.Core.Database.InMemory;
-using NuGet.Protocol.Core.Types;
-using Humanizer.Localisation;
-
 namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
@@ -32,6 +20,13 @@ namespace API_Application.Controllers
         public async Task<ActionResult<IEnumerable<Director>>> GetDirectors()
         {
             return Ok(_inMem.DirectorMem.Values.OrderByDescending(x => x.Id).ToList());
+        }
+
+        // GET: api/Actor
+        [HttpGet("search/{name}")]
+        public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
+        {
+            return Ok(_inMem.DirectorMem.Values.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
         }
 
         // GET: api/Genre

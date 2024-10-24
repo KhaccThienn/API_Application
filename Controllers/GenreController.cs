@@ -43,6 +43,13 @@
             return Ok(response);
         }
 
+        // GET: api/Actor
+        [HttpGet("search/{name}")]
+        public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
+        {
+            return Ok(_inMem.GenreMem.Values.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
+        }
+
         [HttpGet("Search/{query}")]
         public ActionResult<IEnumerable<Genre>> GetGenresByQuery(string? query)
         {

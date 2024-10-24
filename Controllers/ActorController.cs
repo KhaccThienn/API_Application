@@ -26,6 +26,13 @@ namespace API_Application.Controllers
         }
 
         // GET: api/Actor
+        [HttpGet("search/{name}")]
+        public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
+        {
+            return Ok(_inMem.ActorMem.Values.Where(x => x.Name.Contains(name)).OrderByDescending(x => x.Id).ToList());
+        }
+
+        // GET: api/Actor
         [HttpGet("by-paginate")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActorsByPaginate(int page = 1, int pageSize = 1)
         {
