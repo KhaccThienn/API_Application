@@ -32,8 +32,42 @@ namespace API_Application.Controllers
                                     .Where(x => x.ComicId == comicId)
                                     .ToListAsync();
 
+            if (data == null)
+            {
+                return NoContent();
+            }
+
             return Ok(data);
         }
+
+        [HttpGet("getByComic/{comicId}")]
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviewByComicId(int comicId)
+        {
+            var data = await _context.Reviews
+                                    .Include(x => x.Comic)  // Include the Comic entity if needed
+                                    .Include(x => x.User)   // Include the User entity (assuming it's a navigation property)
+                                    .Where(x => x.ComicId == comicId)
+                                    .Select(x => new ReturnReviewDto
+                                    {
+                                        ReviewId   = x.Id,
+                                        UserName   = x.User.Name,          // Assuming User has a Name property
+                                        UserAvatar = x.User.Avatar,   // Assuming User has an AvatarUrl property
+                                        CreatedAt  = x.CreatedAt,
+                                        Comment    = x.Comment,
+                                        Rating     = x.Rating
+                                    })
+                                    .OrderByDescending(x => x.ReviewId)
+                                    .ToListAsync();
+
+            if (data == null || !data.Any())
+            {
+                return NoContent();
+            }
+
+            return Ok(data);
+        }
+
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Review>> GetReview(int id)
@@ -68,13 +102,14 @@ namespace API_Application.Controllers
         [HttpPost]
         public async Task<IActionResult> PostReview([FromBody] Review model)
         {
-            if (model.Comment == null || model.Rating == null || model.Rating <= 0 || model.Rating >= 5 || model.ComicId == null || model.UserId == null)
+            if (string.IsNullOrEmpty(model.Comment) || model.ComicId == null || model.UserId == null)
             {
                 return BadRequest("All fields are required");
             }
 
             try
             {
+                model.Rating    = 5;
                 model.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
                 _context.Reviews.Add(model);
                 await _context.SaveChangesAsync();
@@ -95,7 +130,7 @@ namespace API_Application.Controllers
             {
                 return BadRequest("Id Does not match");
             }
-            if (model.Comment == null || model.Rating == null || model.Rating <= 0 || model.Rating >= 5 || model.ComicId == null || model.UserId == null)
+            if (model.Comment == null || model.ComicId == null || model.UserId == null)
             {
                 return BadRequest("All fields are required");
             }
@@ -109,7 +144,7 @@ namespace API_Application.Controllers
             try
             {
                 review.Comment   = model.Comment;
-                review.Rating    = model.Rating;
+                review.Rating    = 5;
                 review.ComicId   = model.ComicId;
                 review.UserId    = model.UserId;
                 review.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);

@@ -1,4 +1,5 @@
 {
+  "ip": "192.168.98.104",
   "profiles": {
     "API_Application": {
       "commandName": "Project",
@@ -18,7 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://172.16.2.150:7128;http://172.16.2.150:5248"
+      "applicationUrl": "https://192.168.98.104:7128;http://192.168.98.104:5248"
     },
     "IIS Express": {
       "commandName": "IISExpress",

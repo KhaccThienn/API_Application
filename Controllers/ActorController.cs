@@ -36,7 +36,6 @@ namespace API_Application.Controllers
         [HttpGet("by-paginate")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActorsByPaginate(int page = 1, int pageSize = 1)
         {
-            //return Ok(_inMem.ActorMem.Values.OrderByDescending(x => x.Id).ToList());
             var total = _inMem.ActorMem.Values.Count;
             var data = _inMem.ActorMem.Values
                          .OrderByDescending(x => x.Id)
@@ -88,14 +87,16 @@ namespace API_Application.Controllers
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", act.ImageFile.FileName);
-                    var oldFileName = actorFound.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
-                    Console.WriteLine($"Old File: {oldFileName}");
-                    var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
-                    if (System.IO.File.Exists(pathOldFile))
+                    if (actorFound.Value.Avatar != null)
                     {
-                        System.IO.File.Delete(pathOldFile);
+                        var oldFileName = actorFound.Value.Avatar.Split($"uploads/");
+                        Console.WriteLine($"Old File: {oldFileName}");
+                        var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
+                        if (System.IO.File.Exists(pathOldFile))
+                        {
+                            System.IO.File.Delete(pathOldFile);
+                        }
                     }
-
                     // Save the file to the server
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -103,7 +104,7 @@ namespace API_Application.Controllers
                     }
 
                     // Update the avatar field with the file path
-                    act.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                    act.Avatar = $"uploads/{fileName}";
                 }
                 catch
                 {
@@ -168,7 +169,7 @@ namespace API_Application.Controllers
                 }
 
                 // Update the avatar field with the file path
-                act.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                act.Avatar = $"uploads/{fileName}";
             }
 
             Actor actor = new Actor
@@ -200,7 +201,7 @@ namespace API_Application.Controllers
             }
             try
             {   
-                var oldFileName = actor.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
+                var oldFileName = actor.Value.Avatar.Split($"uploads/");
                 Console.WriteLine($"Old File: {oldFileName}");
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
                 if (System.IO.File.Exists(pathOldFile))

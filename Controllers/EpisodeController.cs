@@ -64,7 +64,7 @@
         public async Task<IEnumerable<Episode>> GetEpisodeByComicId(int comic_id)
         {
             return await _context.Episodes.Where(x => x.ComicId == comic_id)
-                                          .OrderBy(x => x.DisplayOrder)
+                                          .OrderByDescending(x => x.Id)
                                           .ToListAsync();
         }
 

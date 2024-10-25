@@ -27,7 +27,7 @@
         [HttpGet("get-by-episode/{episodeId}")]
         public async Task< ActionResult<IEnumerable<Image>>> GetByEpisodeId(int episodeId)
         {
-            var data = await _context.Images.Include(x => x.Episode).Where(x => x.EpisodeId == episodeId).ToListAsync();
+            var data = await _context.Images.Where(x => x.EpisodeId == episodeId).OrderBy(x => x.Name).ToListAsync();
             return Ok(data);
         }
 
@@ -44,10 +44,65 @@
             return image;
         }
 
+        [HttpGet("get-next-episode/{episodeId}")]
+        public async Task<ActionResult<IEnumerable<Image>>> GetNextEpisode(int episodeId)
+        {
+            var currentEpisode = await _context.Episodes.FindAsync(episodeId);
+            if (currentEpisode == null)
+            {
+                return NotFound("Episode not found");
+            }
+
+            var nextEpisode = await _context.Episodes
+                .Where(e => e.DisplayOrder > currentEpisode.DisplayOrder)
+                .OrderBy(e => e.DisplayOrder)
+                .FirstOrDefaultAsync();
+
+            if (nextEpisode == null)
+            {
+                return NotFound("Next episode not found");
+            }
+
+            var images = await _context.Images
+                .Where(x => x.EpisodeId == nextEpisode.Id)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            return Ok(images);
+        }
+
+        [HttpGet("get-previous-episode/{episodeId}")]
+        public async Task<ActionResult<IEnumerable<Image>>> GetPreviousEpisode(int episodeId)
+        {
+            var currentEpisode = await _context.Episodes.FindAsync(episodeId);
+            if (currentEpisode == null)
+            {
+                return NotFound("Episode not found");
+            }
+
+            var previousEpisode = await _context.Episodes
+                .Where(e => e.DisplayOrder < currentEpisode.DisplayOrder)
+                .OrderByDescending(e => e.DisplayOrder)
+                .FirstOrDefaultAsync();
+
+            if (previousEpisode == null)
+            {
+                return NotFound("Previous episode not found");
+            }
+
+            var images = await _context.Images
+                .Where(x => x.EpisodeId == previousEpisode.Id)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+            return Ok(images);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> PostImage([FromForm] AddImageDTO model)
         {
-            if (model.Name == null || model.DisplayOrder == null || model.EpisodeId == null)
+            if (model.Name == null || model.EpisodeId == null)
             {
                 return BadRequest("The fields are required");
             }
@@ -70,7 +125,7 @@
                 }
 
                 // Update the field with the file path
-                model.Url = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                model.Url = $"uploads/{fileName}";
             }
             catch (Exception ex)
             {
@@ -123,7 +178,7 @@
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     // Delete the old file if it exists
-                    var oldFileName = image.Url.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/")[1];
+                    var oldFileName = image.Url.Split($"uploads/")[1];
                     var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName);
                     if (System.IO.File.Exists(pathOldFile))
                     {
@@ -137,7 +192,7 @@
                     }
 
                     // Update the field with the file path
-                    model.Url = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                    model.Url = $"uploads/{fileName}";
                 }
                 else
                 {
@@ -182,7 +237,7 @@
             try
             {
                 // Delete the old file if it exists
-                var oldFileName = image.Url.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/")[1];
+                var oldFileName = image.Url.Split($"uploads/")[1];
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName);
                 if (System.IO.File.Exists(pathOldFile))
                 {

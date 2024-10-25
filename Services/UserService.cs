@@ -25,13 +25,17 @@ namespace API_Application.Services
             {
                 try
                 {
-                    var oldFileName = userFound.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
-                    Console.WriteLine($"Old File: {oldFileName}");
-                    var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
-                    if (System.IO.File.Exists(pathOldFile))
+                    if (userFound.Avatar != null)
                     {
-                        System.IO.File.Delete(pathOldFile);
+                        var oldFileName = userFound.Avatar.Split($"uploads/");
+                        Console.WriteLine($"Old File: {oldFileName}");
+                        var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
+                        if (System.IO.File.Exists(pathOldFile))
+                        {
+                            System.IO.File.Delete(pathOldFile);
+                        }
                     }
+
                 }
                 catch
                 {
@@ -49,11 +53,6 @@ namespace API_Application.Services
         public async Task<IEnumerable<User>> GetUsers()
         {
             return await _repository.GetUsers();
-        }
-
-        public async Task<User> Insert(User u)
-        {
-            return await _repository.Insert(u);
         }
 
         public async Task<User> Insert(CreateUserDTO u)
@@ -76,7 +75,7 @@ namespace API_Application.Services
                 }
 
                 // Update the avatar field with the file path
-                u.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                u.Avatar = $"uploads/{fileName}";
             }
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(u.Password);
             var newUser = new User
@@ -95,6 +94,11 @@ namespace API_Application.Services
 
         public async Task<User> Update(int id, UpdateUserDTO u)
         {
+            if (string.IsNullOrEmpty(u.Name) || string.IsNullOrEmpty(u.Email))
+            {
+                throw new Exception($"All Fields Are Required");
+            }
+
             var userFound = await _repository.GetById(id);
             if (u.ImageFile != null)
             {
@@ -107,7 +111,7 @@ namespace API_Application.Services
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", u.ImageFile.FileName);
                     if (userFound.Avatar != null)
                     {
-                        var oldFileName = userFound.Avatar?.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
+                        var oldFileName = userFound.Avatar?.Split($"uploads/");
 
                         Console.WriteLine($"Old File: {oldFileName}");
                         var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
@@ -124,7 +128,7 @@ namespace API_Application.Services
                     }
 
                     // Update the avatar field with the file path
-                    u.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                    u.Avatar = $"/uploads/{fileName}";
                 } catch
                 {
                     throw;

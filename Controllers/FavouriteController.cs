@@ -21,7 +21,22 @@
                 .OrderByDescending(x => x.Created_At)
                 .Select(x => x.Comic)  // Select only the Comic from each Favourite
                 .ToListAsync();
+            if (comics == null)
+            {
+                return NoContent();
+            }
+            return Ok(comics);
+        }
 
+        [HttpGet("check/{userId}/{comicId}")]
+        public async Task<IActionResult> GetAllFavouriteComicByUser(int userId, int comicId)
+        {
+            var comics = await _context.Favourites
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.ComicId == comicId);
+            if (comics == null)
+            {
+                return BadRequest();
+            }
             return Ok(comics);
         }
 

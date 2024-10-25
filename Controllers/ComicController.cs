@@ -27,12 +27,12 @@ namespace API_Application.Controllers
         [HttpGet("search/{name}")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
         {
-            return Ok(_inMem.ComicMem.Values.Where(x => x.Title.Contains(name)).OrderByDescending(x => x.Id).ToList());
+            return Ok(_inMem.ComicMem.Values.Where(x => x.Title.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
         }
 
         // GET: api/Genre
         [HttpGet("by-paginate")]
-        public ActionResult<IEnumerable<Genre>> GetComicsByPaginate(int page = 1, int pageSize = 1)
+        public ActionResult GetComicsByPaginate(int page = 1, int pageSize = 1)
         {
             var total = _inMem.ComicMem.Values.Count;
             var data = _inMem.ComicMem.Values
@@ -48,6 +48,43 @@ namespace API_Application.Controllers
                 TotalPages = (int)Math.Ceiling((double)total / pageSize)
             };
             return Ok(response);
+        }
+
+        [HttpGet("by-genre/{genreId}")]
+        public async Task<ActionResult<IEnumerable<Comic>>> GetComicsByGenre(int genreId)
+        {
+            // Get the list of ComicGenres for the specified genreId
+            var comicGenres = await _context.ComicGenres
+                .Where(cg => cg.GenreId == genreId)
+                .ToListAsync();
+
+            // Get the comic IDs from the comicGenres
+            var comicIds = comicGenres.Select(cg => cg.ComicId).Distinct().ToList();
+
+            // Fetch the comics based on the retrieved comic IDs
+            var comics = await _context.Comics
+                .Where(c => comicIds.Contains(c.Id))
+                .ToListAsync();
+
+            if (comics == null || !comics.Any())
+            {
+                return NotFound(new { message = "No comics found for the specified genre." });
+            }
+
+            return Ok(comics);
+        }
+
+        [HttpGet("comment/{comicId}")]
+        public async Task<ActionResult> GetCommentByComic(int comicId)
+        {
+            var comment = await _context.Comics.Include(x => x.Reviews).FirstOrDefaultAsync(x => x.Id == comicId);
+                
+            if (comment == null)
+            {
+                return NotFound(new { message = "No comment found for the specified comic." });
+            }
+
+            return Ok(comment);
         }
 
         [HttpGet("Directors/{id}")]
