@@ -1,5 +1,4 @@
-﻿
-namespace API_Application.Controllers
+﻿namespace API_Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,6 +18,7 @@ namespace API_Application.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
             var hasRead = await _context.Histories.FirstOrDefaultAsync(h => h.UserId == history.UserId && h.ComicId == history.ComicId);
 
             if (hasRead == null)
@@ -30,13 +30,13 @@ namespace API_Application.Controllers
                 hasRead.ComicId               = history.ComicId;
                 hasRead.EpisodeId             = history.EpisodeId;
                 hasRead.Updated_At            = DateTime.UtcNow;
+
                 _context.Entry(hasRead).State = EntityState.Modified;
             }
 
             await _context.SaveChangesAsync();
             return Ok(history);
         }
-
 
         [HttpGet("user/{userId}/")]
         public async Task<IActionResult> GetLatestUserHistory(int userId)
@@ -48,14 +48,14 @@ namespace API_Application.Controllers
                                               .OrderByDescending(h => h.Updated_At)
                                               .Select(h => new ComicHistoryDTO
                                               {
-                                                  ComicId     = h.Comic.Id,
-                                                  ComicName   = h.Comic.Title,
-                                                  EpisodeId   = h.Episode.Id,
-                                                  EpisodeName = h.Episode.Title,
-                                                  ImageUrl    = h.Comic.Poster,
-                                                  UpdatedAt   = h.Updated_At ?? DateTime.UtcNow
+                                                  ComicId      = h.Comic.Id,
+                                                  ComicName    = h.Comic.Title,
+                                                  EpisodeId    = h.Episode.Id,
+                                                  EpisodeName  = h.Episode.Title,
+                                                  ImageUrl     = h.Comic.Poster,
+                                                  DisplayOrder = h.Episode.DisplayOrder,
+                                                  UpdatedAt    = h.Updated_At ?? DateTime.UtcNow
                                               })
-                                              
                                               .ToListAsync();
 
             if (latestHistory == null)

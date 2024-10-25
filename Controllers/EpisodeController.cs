@@ -46,6 +46,21 @@
             return Ok(data);
         }
 
+        [HttpGet("max-display-order/{comicId}")]
+        public async Task<IActionResult> GetMaxDisplayOrderByComicId(int comicId)
+        {
+            var maxDisplayOrder = await _context.Episodes
+                .Where(e => e.ComicId == comicId)
+                .MaxAsync(e => (int?)e.DisplayOrder); // Using nullable int for safety
+
+            if (maxDisplayOrder == null)
+            {
+                return NotFound("No episodes found for the specified comic.");
+            }
+
+            return Ok(maxDisplayOrder);
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Episode>> GetEpisode(int id)
@@ -59,6 +74,19 @@
 
             return episode;
         }
+
+        // lay ra Chapter by ComicId and ChapterIndex
+        [HttpGet("ByComic/{comicId}/DisplayOrder/{displayOrder}")]
+        public async Task<IActionResult> GetEpisodeByComicIdAndDisplayOrder(int comicId, int displayOrder)
+        {
+            var data = await _context.Episodes.Include(x => x.Images).FirstOrDefaultAsync(x => x.ComicId == comicId && x.DisplayOrder == displayOrder);
+            if (data == null)
+            {
+                return BadRequest();
+            }
+            return Ok(data);
+        }
+
 
         [HttpGet("ByComic/{comic_id}")]
         public async Task<IEnumerable<Episode>> GetEpisodeByComicId(int comic_id)
