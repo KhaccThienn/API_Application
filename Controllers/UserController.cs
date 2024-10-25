@@ -121,9 +121,10 @@ namespace API_Application.Controllers
 
         // Change password
         [HttpPut("ChangePassword/{id}")]
-        public async Task<ActionResult<User>> UpdatePassword(int id, [FromBody] UpdatePasswordDTO passwordDTO)
+        public async Task<ActionResult> UpdatePassword(int id, [FromBody] UpdatePasswordDTO passwordDTO)
         {
             var userFound = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+
             if (userFound == null)
             {
                 return BadRequest("User not found");
@@ -136,21 +137,12 @@ namespace API_Application.Controllers
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordDTO.NewPassword);
 
-            var updatedUser = new User
-            {
-                Id        = userFound.Id,
-                Name      = userFound.Name,
-                Email     = userFound.Email,
-                Password  = hashedPassword,
-                Avatar    = userFound.Avatar,
-                Role      = userFound.Role,
-                CreatedAt = userFound.CreatedAt,
-                UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
-            };
-            _context.Users.Update(updatedUser);
+            userFound.Password = hashedPassword;
+
+            _context.Users.Update(userFound);
             _context.SaveChanges();
 
-            return Ok(updatedUser);
+            return Ok(userFound);
         }
 
         // Delete user by ID

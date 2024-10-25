@@ -17,22 +17,22 @@
 
         // GET: api/Genre
         [HttpGet]
-        public ActionResult<IEnumerable<Genre>> GetGenres()
+        public async Task<IActionResult> GetGenres()
         {
-            var data     = _inMem.GenreMem.Values.ToList();
+            var data     = await _context.Genres.ToListAsync();
             return Ok(data);
         }
 
         // GET: api/Genre
         [HttpGet("by-paginate")]
-        public ActionResult<IEnumerable<Genre>> GetGenresByPaginate(int page = 1, int pageSize = 1)
+        public async Task<IActionResult> GetGenresByPaginate(int page = 1, int pageSize = 1)
         {
-            var total = _inMem.GenreMem.Values.Count;
-            var data = _inMem.GenreMem.Values
+            var total = _context.Genres.Count();
+            var data = await _context.Genres
                          .OrderByDescending(x => x.Id)
                          .Skip((page - 1) * pageSize)
                          .Take(pageSize)
-                         .ToList();
+                         .ToListAsync();
             var response = new
             {
                 Data = data,
@@ -47,36 +47,36 @@
         [HttpGet("search/{name}")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
         {
-            return Ok(_inMem.GenreMem.Values.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Genres.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToListAsync());
         }
 
         [HttpGet("Search/{query}")]
-        public ActionResult<IEnumerable<Genre>> GetGenresByQuery(string? query)
+        public async Task<IActionResult> GetGenresByQuery(string? query)
         {
             _logger.LogInformation(query.Length.ToString());
 
             if (query.Length != 0)
             {
-                return Ok(_inMem.GenreMem.Values.Where(x => x.Name.ToLower().Contains(query.ToLower())).ToList());
+                return Ok(await _context.Genres.Where(x => x.Name.ToLower().Contains(query.ToLower())).ToListAsync());
 
             }
-            return Ok(_inMem.GenreMem.Values.ToList());
+            return Ok(await _context.Genres.ToListAsync());
 
         }
 
 
         // GET: api/Genre/5
         [HttpGet("{id}")]
-        public ActionResult<Genre> GetGenre(int? id)
+        public async Task<IActionResult> GetGenre(int? id)
         {
-            var genre = _inMem.GenreMem.Values.FirstOrDefault(x => x.Id == id);
+            var genre = await _context.Genres.FirstOrDefaultAsync(x => x.Id == id);
 
             if (genre == null)
             {
                 return NotFound();
             }
 
-            return genre;
+            return Ok(genre);
         }
 
         // PUT: api/Genre/5
@@ -92,18 +92,15 @@
 
             try
             {
-                var g = _inMem.GenreMem.FirstOrDefault(u => u.Value.Id == id);
+                var g = await _context.Genres.FirstOrDefaultAsync(u => u.Id == id);
 
-                g.Value.Name = genre.Name;
-                g.Value.Slug = genre.Slug;
-                g.Value.CreatedAt = genre.CreatedAt;
-                g.Value.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);
+                g.Name = genre.Name;
+                g.Slug = genre.Slug;
+                g.CreatedAt = genre.CreatedAt;
+                g.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);
 
                 // Update in database
-                _context.Entry(genre).State = EntityState.Modified;
-
-                _inMem.GenreMem.Remove(id.ToString());
-                _inMem.GenreMem.Add(g.Value.Id.ToString(), genre);
+                _context.Entry(g).State = EntityState.Modified;
 
                 await _context.SaveChangesAsync();
             }
@@ -129,8 +126,7 @@
         {
             _context.Genres.Add(genre);
             await _context.SaveChangesAsync();
-            // Save into memory
-            _inMem.GenreMem.Add(genre.Id.ToString(), genre);
+            
             return CreatedAtAction("GetGenre", new { id = genre.Id }, genre);
         }
 

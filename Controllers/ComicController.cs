@@ -20,26 +20,26 @@ namespace API_Application.Controllers
         [HttpGet]
         public IEnumerable<Comic> GetComics()
         {
-            return _inMem.ComicMem.Values.ToList();
+            return _context.Comics.ToList();
         }
 
         // GET: api/Actor
         [HttpGet("search/{name}")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
         {
-            return Ok(_inMem.ComicMem.Values.Where(x => x.Title.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Comics.Where(x => x.Title.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToListAsync());
         }
 
         // GET: api/Genre
         [HttpGet("by-paginate")]
-        public ActionResult GetComicsByPaginate(int page = 1, int pageSize = 1)
+        public async Task<IActionResult> GetComicsByPaginate(int page = 1, int pageSize = 1)
         {
-            var total = _inMem.ComicMem.Values.Count;
-            var data = _inMem.ComicMem.Values
+            var total = _context.Comics.Count();
+            var data = await _context.Comics
                          .OrderByDescending(x => x.Id)
                          .Skip((page - 1) * pageSize)
                          .Take(pageSize)
-                         .ToList();
+                         .ToListAsync();
             var response = new
             {
                 Data = data,
@@ -208,7 +208,7 @@ namespace API_Application.Controllers
             }
 
             // Find the comic in the database
-            var comicFound = _inMem.ComicMem.Values.FirstOrDefault(x => x.Id == id);
+            var comicFound = _context.Comics.FirstOrDefault(x => x.Id == id);
             if (comicFound == null)
             {
                 return NotFound();
@@ -222,7 +222,7 @@ namespace API_Application.Controllers
                 var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                 // Delete the old file if it exists
-                var oldFileName = comicFound.Poster.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/")[1];
+                var oldFileName = comicFound.Poster.Split($"uploads/")[1];
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName);
                 if (System.IO.File.Exists(pathOldFile))
                 {
@@ -236,7 +236,7 @@ namespace API_Application.Controllers
                 }
 
                 // Update the Poster field with the new file path
-                comicFound.Poster = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                comicFound.Poster = $"uploads/{fileName}";
             }
 
             // Update the comic    fields with the updated values from DTO
@@ -294,9 +294,6 @@ namespace API_Application.Controllers
                 // Save all changes
                 await _context.SaveChangesAsync();
 
-                _inMem.ComicMem.Remove(comicFound.Id.ToString());
-
-                _inMem.ComicMem.Add(comicFound.Id.ToString(), comicFound);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -332,7 +329,7 @@ namespace API_Application.Controllers
                 }
 
                 // Update the poster field with the file path
-                addComicDTO.Poster = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                addComicDTO.Poster = $"uploads/{fileName}";
             }
 
             // Create a new Comic entity
@@ -393,8 +390,6 @@ namespace API_Application.Controllers
 
             // Save all changes
             await _context.SaveChangesAsync();
-
-            _inMem.ComicMem.Add(comic.Id.ToString(), comic);
 
             // Return the newly created comic with its ID
             return CreatedAtAction("GetComic", new { id = comicId }, comic);

@@ -22,26 +22,26 @@ namespace API_Application.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActors()
         {
-            return Ok(_inMem.ActorMem.Values.OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Actors.OrderByDescending(x => x.Id).ToListAsync());
         }
 
         // GET: api/Actor
         [HttpGet("search/{name}")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
         {
-            return Ok(_inMem.ActorMem.Values.Where(x => x.Name.Contains(name)).OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Actors.Where(x => x.Name.Contains(name)).OrderByDescending(x => x.Id).ToListAsync());
         }
 
         // GET: api/Actor
         [HttpGet("by-paginate")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetActorsByPaginate(int page = 1, int pageSize = 1)
         {
-            var total = _inMem.ActorMem.Values.Count;
-            var data = _inMem.ActorMem.Values
+            var total = _context.Actors.Count();
+            var data = await _context.Actors
                          .OrderByDescending(x => x.Id)
                          .Skip((page - 1) * pageSize)
                          .Take(pageSize)
-                         .ToList();
+                         .ToListAsync();
             var response = new
             {
                 Data = data,
@@ -56,7 +56,7 @@ namespace API_Application.Controllers
         [HttpGet("{id}")]
         public ActionResult<Actor> GetActor(int id)
         {
-            var actor = _inMem.ActorMem.Values.FirstOrDefault(x => x.Id == id);
+            var actor = _context.Actors.FirstOrDefault(x => x.Id == id);
 
             if (actor == null)
             {
@@ -76,7 +76,7 @@ namespace API_Application.Controllers
                 return BadRequest();
             }
 
-            var actorFound = _inMem.ActorMem.FirstOrDefault(x => x.Value.Id == id);
+            var actorFound = _context.Actors.FirstOrDefault(x => x.Id == id);
 
             if (act.ImageFile != null)
             {
@@ -87,9 +87,9 @@ namespace API_Application.Controllers
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", act.ImageFile.FileName);
-                    if (actorFound.Value.Avatar != null)
+                    if (actorFound.Avatar != null)
                     {
-                        var oldFileName = actorFound.Value.Avatar.Split($"uploads/");
+                        var oldFileName = actorFound.Avatar.Split($"uploads/");
                         Console.WriteLine($"Old File: {oldFileName}");
                         var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
                         if (System.IO.File.Exists(pathOldFile))
@@ -114,7 +114,7 @@ namespace API_Application.Controllers
             }
             else
             {
-                act.Avatar = actorFound.Value.Avatar;
+                act.Avatar = actorFound.Avatar;
             }
 
             var actor = new Actor
@@ -132,8 +132,6 @@ namespace API_Application.Controllers
 
             try
             {
-                _inMem.ActorMem.Remove(actor.Id.ToString());
-                _inMem.ActorMem.Add(actor.Id.ToString(), actor);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -184,8 +182,6 @@ namespace API_Application.Controllers
 
             var ac = _context.Actors.Add(actor);
             await _context.SaveChangesAsync();
-            // insert into memory
-            _inMem.ActorMem.Add(ac.Entity.Id.ToString(), ac.Entity);
 
             return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
         }
@@ -194,14 +190,14 @@ namespace API_Application.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteActor(int id)
         {
-            var actor = _inMem.ActorMem.FirstOrDefault(x => x.Value.Id == id);
-            if (actor.Value == null)
+            var actor = await _context.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            if (actor == null)
             {
                 return NotFound();
             }
             try
             {   
-                var oldFileName = actor.Value.Avatar.Split($"uploads/");
+                var oldFileName = actor.Avatar.Split($"uploads/");
                 Console.WriteLine($"Old File: {oldFileName}");
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
                 if (System.IO.File.Exists(pathOldFile))
@@ -214,12 +210,10 @@ namespace API_Application.Controllers
                 throw;
             }
 
-            _context.Actors.Remove(actor.Value);
+            _context.Actors.Remove(actor);
             await _context.SaveChangesAsync();
 
-            _inMem.ActorMem.Remove(actor.Value.Id.ToString());
-
-            return Ok(actor.Value);
+            return Ok(actor);
         }
 
         private bool ActorExists(int id)

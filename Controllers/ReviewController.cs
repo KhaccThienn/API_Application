@@ -61,7 +61,7 @@ namespace API_Application.Controllers
 
             if (data == null || !data.Any())
             {
-                return NoContent();
+                return Ok();
             }
 
             return Ok(data);

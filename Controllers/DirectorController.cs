@@ -19,26 +19,26 @@ namespace API_Application.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Director>>> GetDirectors()
         {
-            return Ok(_inMem.DirectorMem.Values.OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Directors.OrderByDescending(x => x.Id).ToListAsync());
         }
 
         // GET: api/Actor
         [HttpGet("search/{name}")]
         public async Task<ActionResult<IEnumerable<Actor>>> GetDataByName(string name)
         {
-            return Ok(_inMem.DirectorMem.Values.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToList());
+            return Ok(await _context.Directors.Where(x => x.Name.ToLower().Contains(name.ToLower())).OrderByDescending(x => x.Id).ToListAsync());
         }
 
         // GET: api/Genre
         [HttpGet("by-paginate")]
-        public ActionResult<IEnumerable<Genre>> GetDirectorsByPaginate(int page = 1, int pageSize = 1)
+        public async Task<IActionResult> GetDirectorsByPaginate(int page = 1, int pageSize = 1)
         {
-            var total = _inMem.DirectorMem.Values.Count;
-            var data = _inMem.DirectorMem.Values
+            var total = _context.Directors.Count();
+            var data = await _context.Directors
                          .OrderByDescending(x => x.Id)
                          .Skip((page - 1) * pageSize)
                          .Take(pageSize)
-                         .ToList();
+                         .ToListAsync();
             var response = new
             {
                 Data = data,
@@ -53,7 +53,7 @@ namespace API_Application.Controllers
         [HttpGet("{id}")]
         public ActionResult<Director> GetDirector(int id)
         {
-            var director = _inMem.DirectorMem.Values.FirstOrDefault(x => x.Id == id);
+            var director = _context.Directors.FirstOrDefault(x => x.Id == id);
 
             if (director == null)
             {
@@ -73,8 +73,11 @@ namespace API_Application.Controllers
                 return BadRequest();
             }
 
-            var actorFound = _inMem.DirectorMem.FirstOrDefault(x => x.Value.Id == id);
-
+            var actorFound = await _context.Directors.FirstOrDefaultAsync(x => x.Id == id);
+            if (actorFound == null)
+            {
+                return NoContent();
+            }
             if (drt.ImageFile != null)
             {
                 try
@@ -84,16 +87,18 @@ namespace API_Application.Controllers
                     var filePath = Path.Combine("wwwroot/uploads", fileName);
 
                     var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", drt.ImageFile.FileName);
-
-                    var oldFileName = actorFound.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
-                    Console.WriteLine($"Old File: {oldFileName}");
-
-                    var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
-                    if (System.IO.File.Exists(pathOldFile))
+                    if (actorFound.Avatar != null)
                     {
-                        System.IO.File.Delete(pathOldFile);
-                    }
+                        var oldFileName = actorFound.Avatar.Split($"uploads/");
+                        Console.WriteLine($"Old File: {oldFileName}");
 
+                        var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
+                        if (System.IO.File.Exists(pathOldFile))
+                        {
+                            System.IO.File.Delete(pathOldFile);
+                        }
+                    }
+                  
                     // Save the file to the server
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -101,7 +106,7 @@ namespace API_Application.Controllers
                     }
 
                     // Update the avatar field with the file path
-                    drt.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                    actorFound.Avatar = $"uploads/{fileName}";
                 }
                 catch
                 {
@@ -109,23 +114,11 @@ namespace API_Application.Controllers
                 }
 
             }
-            else
-            {
-                drt.Avatar = actorFound.Value.Avatar;
-            }
 
-            var director = new Director
-            {
-                Id = drt.Id,
-                Name = drt.Name,
-                Birthday = drt.Birthday,
-                Description = drt.Description,
-                Avatar = drt.Avatar,
-                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
-                UpdatedAt = DateOnly.FromDateTime(DateTime.Now)
-            };
+            actorFound.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
+            actorFound.UpdatedAt = DateOnly.FromDateTime(DateTime.Now);
 
-            _context.Entry(director).State = EntityState.Modified;
+            _context.Entry(actorFound).State = EntityState.Modified;
 
             try
             {
@@ -143,7 +136,7 @@ namespace API_Application.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(drt);
         }
 
         // POST: api/Director
@@ -164,7 +157,7 @@ namespace API_Application.Controllers
                 }
 
                 // Update the avatar field with the file path
-                act.Avatar = $"https://{_httpContext.HttpContext.Request.Host.Value}/uploads/{fileName}";
+                act.Avatar = $"uploads/{fileName}";
             }
 
             Director director = new Director
@@ -179,8 +172,6 @@ namespace API_Application.Controllers
 
             var ac = _context.Directors.Add(director);
             await _context.SaveChangesAsync();
-            // insert into memory
-            _inMem.DirectorMem.Add(ac.Entity.Id.ToString(), ac.Entity);
 
             return CreatedAtAction("GetDirector", new { id = director.Id }, director);
         }
@@ -189,14 +180,14 @@ namespace API_Application.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDirector(int id)
         {
-            var director = _inMem.DirectorMem.FirstOrDefault(x => x.Value.Id == id);
-            if (director.Value == null)
+            var director = await _context.Directors.FirstOrDefaultAsync(x => x.Id == id);
+            if (director == null)
             {
                 return NotFound();
             }
             try
             {
-                var oldFileName = director.Value.Avatar.Split($"{_httpContext.HttpContext.Request.Host.Value}/uploads/");
+                var oldFileName = director.Avatar.Split($"uploads/");
                 Console.WriteLine($"Old File: {oldFileName}");
                 var pathOldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldFileName[1]);
                 if (System.IO.File.Exists(pathOldFile))
@@ -209,12 +200,11 @@ namespace API_Application.Controllers
                 throw;
             }
 
-            _context.Directors.Remove(director.Value);
+            _context.Directors.Remove(director);
             await _context.SaveChangesAsync();
 
-            _inMem.DirectorMem.Remove(director.Value.Id.ToString());
 
-            return Ok(director.Value);
+            return Ok(director);
         }
 
         private bool DirectorExists(int id)
